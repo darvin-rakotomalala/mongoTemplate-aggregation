@@ -8,7 +8,8 @@ import com.poc.model.domain.Sale;
 import com.poc.model.domain.SalesOwner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -24,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContactCustomRepositoryImpl implements ContactCustomRepository {
 
+    public static final String CONTACT_COLLECTION = "contacts";
     private final MongoTemplate mongoTemplate;
 
     @Override
@@ -57,7 +59,9 @@ public class ContactCustomRepositoryImpl implements ContactCustomRepository {
 
     @Override
     public List<Contact> findAllContacts() {
-        return null;
+        AggregationOperation sort = Aggregation.sort(Sort.Direction.ASC, "lastName");
+        Aggregation agg = Aggregation.newAggregation(sort);
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, Contact.class).getMappedResults();
     }
 
     @Override

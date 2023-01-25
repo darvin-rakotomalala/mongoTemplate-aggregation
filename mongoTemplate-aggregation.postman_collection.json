@@ -33,6 +33,52 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "getAllContacts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getContactsByProperties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/byProperties?lastName=Binks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"byProperties"
+					],
+					"query": [
+						{
+							"key": "lastName",
+							"value": "Binks"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
