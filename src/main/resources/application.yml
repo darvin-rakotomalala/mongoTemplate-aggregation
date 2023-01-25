@@ -1,0 +1,47 @@
+application:
+  name: '@project.artifactId@'
+  description: '@project.description@'
+build:
+  version: '@project.version@'
+  timestamp: '@maven.build.timestamp@'
+modules:
+  logging:
+    logs:
+      folder:
+        path: ./logs
+    application:
+      name: '@project.artifactId@'
+server:
+  port: '8081'
+spring:
+  main:
+    lazy-initialization: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  data:
+    mongodb:
+      database: '@project.artifactId@'
+      auto-index-creation: true
+      uuid-representation: standard
+  sleuth:
+    async:
+      enabled: false
+
+mongodb:
+  poc:
+    mongoUri : 'mongodb://localhost:27017/?retryWrites=false'
+    host: localhost
+    port: '27017'
+    dbname: '@project.artifactId@'
+    admin: admin
+    username: mongodbUser
+    password: mongodbPassword
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
