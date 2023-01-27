@@ -28,9 +28,9 @@ public class ContactDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String email;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Phone> phones = new ArrayList<>();
+    private List<Phone> phones;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Address> addresses = new ArrayList<Address>();
+    private List<Address> addresses;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Source source;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -50,5 +50,5 @@ public class ContactDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private SalesOwner salesOwner;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Sale> sales = new ArrayList<Sale>();
+    private List<Sale> sales;
 }

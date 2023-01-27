@@ -23,8 +23,8 @@ public class Contact {
     private String firstName;
     private String lastName;
     private String email;
-    private List<Phone> phones = new ArrayList<>();
-    private List<Address> addresses = new ArrayList<Address>();
+    private List<Phone> phones;
+    private List<Address> addresses;
     private Source source;
     private String sourceDetails;
     private ContactStatus status;
@@ -34,5 +34,5 @@ public class Contact {
     private String title;
     private boolean authority;
     private SalesOwner salesOwner;
-    private List<Sale> sales = new ArrayList<Sale>();
+    private List<Sale> sales;
 }

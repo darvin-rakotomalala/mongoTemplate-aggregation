@@ -7,6 +7,7 @@ import com.poc.model.constant.Source;
 import com.poc.model.domain.Sale;
 import com.poc.model.domain.SalesOwner;
 import com.poc.model.dto.ContactDTO;
+import com.poc.model.dto.ResultUnique;
 import com.poc.repository.ContactCustomRepository;
 import com.poc.utils.HelpPage;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,17 @@ public class ContactRSAImpl implements ContactRSA {
             return contactMapper.toDTO(contactCustomRepository.findAllContacts());
         } catch (Exception e) {
             log.error("Error getAllContacts : {} : {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public HelpPage<ContactDTO> searchContactsByName(String name, Pageable pageable) {
+        try {
+            log.info("----- searchContactsByName : {}", name);
+            return contactMapper.toDTO(contactCustomRepository.searchContactsByName(name, pageable), pageable);
+        } catch (Exception e) {
+            log.error("Error searchContactsByName : {} : {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -69,10 +81,10 @@ public class ContactRSAImpl implements ContactRSA {
     }
 
     @Override
-    public List<ContactDTO> getDistinctSourceValues() {
+    public List<ResultUnique> getDistinctSourceValues() {
         try {
             log.info("----- getDistinctSourceValues");
-            return contactMapper.toDTO(contactCustomRepository.findDistinctSourceValues());
+            return contactCustomRepository.findDistinctSourceValues();
         } catch (Exception e) {
             log.error("Error getDistinctSourceValues : {} : {}", e.getMessage(), e);
             throw e;

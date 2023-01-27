@@ -7,6 +7,7 @@ import com.poc.model.constant.Source;
 import com.poc.model.domain.Sale;
 import com.poc.model.domain.SalesOwner;
 import com.poc.model.dto.ContactDTO;
+import com.poc.model.dto.ResultUnique;
 import com.poc.service.application.ContactCUDSA;
 import com.poc.service.application.ContactRSA;
 import com.poc.utils.HelpPage;
@@ -46,6 +47,16 @@ public class ContactController {
         return contactRSA.getAllContacts();
     }
 
+    @Operation(summary = "WS used to search contacts ny name")
+    @GetMapping("/search")
+    public HelpPage<ContactDTO> searchContactsByName(
+            @RequestParam(name = "name", required = true) String name,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "15", required = false) int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
+        return contactRSA.searchContactsByName(name, pageable);
+    }
+
     @Operation(summary = "WS used to get match contacts by source")
     @GetMapping("/matchBySource")
     public List<ContactDTO> matchContactsBySource(
@@ -68,7 +79,7 @@ public class ContactController {
 
     @Operation(summary = "WS used to get distinct contacts by source")
     @GetMapping("/distinctBySource")
-    public List<ContactDTO> getDistinctSourceValues() {
+    public List<ResultUnique> getDistinctSourceValues() {
         return contactRSA.getDistinctSourceValues();
     }
 

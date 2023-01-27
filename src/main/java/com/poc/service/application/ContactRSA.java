@@ -6,6 +6,7 @@ import com.poc.model.constant.Source;
 import com.poc.model.domain.Sale;
 import com.poc.model.domain.SalesOwner;
 import com.poc.model.dto.ContactDTO;
+import com.poc.model.dto.ResultUnique;
 import com.poc.utils.HelpPage;
 import org.springframework.data.domain.Pageable;
 
@@ -13,10 +14,11 @@ import java.util.List;
 
 public interface ContactRSA {
     public List<ContactDTO> getAllContacts();
+    public HelpPage<ContactDTO> searchContactsByName(String name, Pageable pageable);
     public List<ContactDTO> matchContactsBySource(Source source);
     public List<ContactDTO> projectContactsBySource(Source source);
     public List<ContactInfoAggregate> countContactsBySource();
-    public List<ContactDTO> getDistinctSourceValues();
+    public List<ResultUnique> getDistinctSourceValues();
     public List<ContactInfoAggregate> groupContactsBySource();
     public List<ContactDTO> getContactsBySourceAndLimit(Source source, long maxDocuments);
     public List<ContactDTO> getContactsBySourceAndSkip(Source source, long elementsToSkip);

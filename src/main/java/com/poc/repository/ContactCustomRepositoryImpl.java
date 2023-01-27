@@ -6,13 +6,17 @@ import com.poc.model.constant.Source;
 import com.poc.model.domain.Contact;
 import com.poc.model.domain.Sale;
 import com.poc.model.domain.SalesOwner;
+import com.poc.model.dto.ResultUnique;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -65,28 +69,77 @@ public class ContactCustomRepositoryImpl implements ContactCustomRepository {
     }
 
     @Override
+    public Page<Contact> searchContactsByName(String name, Pageable pageable) {
+
+        String regexName = StringUtils.isEmpty(name) ? "" : name;
+        Criteria nameCriteria = new Criteria();
+        nameCriteria.orOperator(Criteria.where("lastName").regex(regexName, "i"), Criteria.where("firstName").regex(regexName, "i"));
+
+        MatchOperation nameMatch = Aggregation.match(nameCriteria);
+        AggregationOperation sortByName = Aggregation.sort(Sort.Direction.ASC, "lastName");
+
+        AggregationOperation skipToPageNumber = Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize());
+        AggregationOperation limitToPageSize = Aggregation.limit(pageable.getPageSize());
+
+        Aggregation agg = Aggregation.newAggregation(nameMatch, sortByName, skipToPageNumber, limitToPageSize);
+        AggregationResults<Contact> results = mongoTemplate.aggregate(agg, CONTACT_COLLECTION, Contact.class);
+
+        List<Contact> contactList = results.getMappedResults();
+
+        Query query = new Query().with(pageable);
+        return PageableExecutionUtils.getPage(contactList, pageable,
+                () -> mongoTemplate.count(Query.of(query).limit(-1)
+                        .skip(-1), Contact.class));
+    }
+
+    @Override
     public List<Contact> matchContactsBySource(Source source) {
-        return null;
+        AggregationOperation matchSource = Aggregation.match(Criteria.where("source").is(source));
+        AggregationOperation sortByLastName = Aggregation.sort(Sort.Direction.ASC, "lastName");
+
+        Aggregation agg = Aggregation.newAggregation(matchSource, sortByLastName);
+
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, Contact.class).getMappedResults();
     }
 
     @Override
     public List<Contact> projectContactsBySource(Source source) {
-        return null;
+        AggregationOperation matchSource = Aggregation.match(Criteria.where("source").is(source));
+        AggregationOperation sortByLastName = Aggregation.sort(Sort.Direction.ASC, "lastName");
+        AggregationOperation projectSource = Aggregation.project("firstName", "lastName", "source").andExclude("_id");
+
+        Aggregation agg = Aggregation.newAggregation(matchSource, sortByLastName, projectSource);
+
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, Contact.class).getMappedResults();
     }
 
     @Override
     public List<ContactInfoAggregate> countContactsBySource() {
-        return null;
+        AggregationOperation groupCount = Aggregation.group("source").count().as("count");
+        AggregationOperation projectCount = Aggregation.project("count").and("source").previousOperation();
+
+        Aggregation agg = Aggregation.newAggregation(groupCount, projectCount);
+
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, ContactInfoAggregate.class).getMappedResults();
     }
 
     @Override
-    public List<Contact> findDistinctSourceValues() {
-        return null;
+    public List<ResultUnique> findDistinctSourceValues() {
+        AggregationOperation groupSource = Aggregation.group("source");
+        Aggregation agg = Aggregation.newAggregation(groupSource);
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, ResultUnique.class).getMappedResults();
     }
 
     @Override
     public List<ContactInfoAggregate> groupContactsBySource() {
-        return null;
+        AggregationOperation sortByLastName = Aggregation.sort(Sort.Direction.ASC, "lastName");
+        AggregationOperation fullName = Aggregation.project("source").and("firstName").concat(" ", Aggregation.fields("lastName")).as("fullName");
+        AggregationOperation groupSource = Aggregation.group("source").push("fullName").as("contacts");
+        AggregationOperation projectSource = Aggregation.project("contacts").and("source").previousOperation();
+
+        Aggregation aggregation = Aggregation.newAggregation(sortByLastName, fullName, groupSource, projectSource);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, ContactInfoAggregate.class).getMappedResults();
     }
 
     @Override
