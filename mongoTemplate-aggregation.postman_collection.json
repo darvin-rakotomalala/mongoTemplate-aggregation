@@ -79,6 +79,144 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "searchContactsByName",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/search?name=Binks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"search"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "Binks"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "matchContactsBySource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/matchBySource?source=EMAIL",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"matchBySource"
+					],
+					"query": [
+						{
+							"key": "source",
+							"value": "EMAIL"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "projectContactsBySource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/projectBySource?source=EMAIL",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"projectBySource"
+					],
+					"query": [
+						{
+							"key": "source",
+							"value": "EMAIL"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "countContactsBySource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/countBySource",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"countBySource"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getDistinctSourceValues",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/distinctBySource",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"distinctBySource"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "groupContactsBySource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/groupBySource",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"groupBySource"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
