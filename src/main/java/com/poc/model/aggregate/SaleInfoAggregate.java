@@ -21,5 +21,5 @@ public class SaleInfoAggregate {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer bigSales;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<String> lobs = new ArrayList<>();
+    private List<String> lobs;
 }

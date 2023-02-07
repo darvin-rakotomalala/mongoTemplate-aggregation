@@ -132,12 +132,12 @@ public class ContactController {
     }
 
     @Operation(summary = "WS used to search contacts by name")
-    @GetMapping("/byName")
+    @GetMapping("/searchByName")
     public HelpPage<ContactDTO> searchByName(
             @RequestParam(name = "name", required = true) String name,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "15", required = false) int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("firstName").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
         return contactRSA.searchByName(name, pageable);
     }
 

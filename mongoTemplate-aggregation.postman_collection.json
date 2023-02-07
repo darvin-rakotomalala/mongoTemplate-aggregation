@@ -2,7 +2,8 @@
 	"info": {
 		"_postman_id": "617d0e6b-737e-4db8-8f29-bf268fa8c311",
 		"name": "mongoTemplate-aggregation",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13359435"
 	},
 	"item": [
 		{
@@ -213,6 +214,270 @@
 					"path": [
 						"contacts",
 						"groupBySource"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getContactsBySourceAndLimit",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/limitBySource?source=EMAIL&maxDocuments=3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"limitBySource"
+					],
+					"query": [
+						{
+							"key": "source",
+							"value": "EMAIL"
+						},
+						{
+							"key": "maxDocuments",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getContactsBySourceAndSkip",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/skipBySource?source=EMAIL&elementsToSkip=3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"skipBySource"
+					],
+					"query": [
+						{
+							"key": "source",
+							"value": "EMAIL"
+						},
+						{
+							"key": "elementsToSkip",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTotalSalesPerContact",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/totalSales",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"totalSales"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getListContactsSales",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/sales",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"sales"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getSalesOwnersBySource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/salesOwnersBySource?source=EMAIL",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"salesOwnersBySource"
+					],
+					"query": [
+						{
+							"key": "source",
+							"value": "EMAIL"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "groupSalesOwnersBySource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/groupSalesOwnersBySource?source=EMAIL",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"groupSalesOwnersBySource"
+					],
+					"query": [
+						{
+							"key": "source",
+							"value": "EMAIL"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "searchByName",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/searchByName?name=JarJar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"searchByName"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "JarJar"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getContactsByProperties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/byProperties?email=jarjar@xmail.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"byProperties"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "jarjar@xmail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getBigSalesPerContact",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/bigSales",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"bigSales"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getLobSalesByContact",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/lobSales",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"lobSales"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getFirstSaleForEachContact",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/contacts/firstSale",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"contacts",
+						"firstSale"
 					]
 				}
 			},

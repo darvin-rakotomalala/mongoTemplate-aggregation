@@ -10,13 +10,11 @@ import com.poc.model.dto.ResultUnique;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -144,52 +142,133 @@ public class ContactCustomRepositoryImpl implements ContactCustomRepository {
 
     @Override
     public List<Contact> findContactsBySourceAndLimit(Source source, long maxDocuments) {
-        return null;
+        AggregationOperation matchBySource = Aggregation.match(Criteria.where("source").is(source));
+        AggregationOperation sortByLastName = Aggregation.sort(Sort.Direction.ASC, "lastName");
+        AggregationOperation limit = Aggregation.limit(maxDocuments);
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySource, sortByLastName, limit);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, Contact.class).getMappedResults();
     }
 
     @Override
     public List<Contact> findContactsBySourceAndSkip(Source source, long elementsToSkip) {
-        return null;
+        AggregationOperation matchBySource = Aggregation.match(Criteria.where("source").is(source));
+        AggregationOperation sortByLastName = Aggregation.sort(Sort.Direction.ASC, "lastName");
+        AggregationOperation skip = Aggregation.skip(elementsToSkip);
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySource, sortByLastName, skip);
+
+        return mongoTemplate.aggregate(aggregation, mongoTemplate.getCollectionName(Contact.class), Contact.class).getMappedResults();
     }
 
     @Override
     public List<SaleInfoAggregate> getTotalSalesPerContact() {
-        return null;
+        AggregationOperation matchBySales = Aggregation.match(Criteria.where("sales").exists(true));
+        AggregationOperation unwindBySales = Aggregation.unwind("sales");
+        AggregationOperation fullName = Aggregation.project("_id", "sales").and("firstName").concat(" ", Aggregation.fields("lastName")).as("contactName");
+        AggregationOperation groupByContactName = Aggregation.group("contactName").sum("sales.value").as("totalSales");
+        AggregationOperation project = Aggregation.project("totalSales").and("contactName").previousOperation();
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySales, unwindBySales, fullName, groupByContactName, project);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, SaleInfoAggregate.class).getMappedResults();
     }
 
     @Override
     public List<Sale> listContactSales() {
-        return null;
+        AggregationOperation matchBySales = Aggregation.match(Criteria.where("sales").exists(true));
+        AggregationOperation unwindBySales = Aggregation.unwind("sales");
+        AggregationOperation sortBySalesDate = Aggregation.sort(Sort.Direction.ASC, "sales.date");
+        AggregationOperation replaceRootSales = Aggregation.replaceRoot("sales");
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySales, unwindBySales, sortBySalesDate, replaceRootSales);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, Sale.class).getMappedResults();
     }
 
     @Override
     public List<SalesOwner> findSalesOwnersBySource(Source source) {
-        return null;
+        AggregationOperation matchBySource = Aggregation.match(Criteria.where("source").is(source));
+        AggregationOperation replaceRootSalesOwner = Aggregation.replaceRoot("salesOwner");
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySource, replaceRootSalesOwner);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, SalesOwner.class).getMappedResults();
     }
 
     @Override
     public List<SalesOwner> groupSalesOwnersBySource(Source source) {
-        return null;
+        AggregationOperation matchBySource = Aggregation.match(Criteria.where("source").is(source));
+        AggregationOperation replaceRootSalesOwner = Aggregation.replaceRoot("salesOwner");
+        AggregationOperation groupByName = Aggregation.group("lastName", "firstName");
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySource, replaceRootSalesOwner, groupByName);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, SalesOwner.class).getMappedResults();
     }
 
     @Override
     public Page<Contact> searchByName(String name, Pageable pageable) {
-        return null;
+        Criteria nameCriteria = new Criteria();
+        if (!StringUtils.isBlank(name)) {
+            nameCriteria = nameCriteria.orOperator(Criteria.where("firstName").is(name), Criteria.where("lastName").is(name));
+        }
+
+        Query query = new Query();
+        query.addCriteria(nameCriteria);
+        query.with(pageable);
+        query.skip((long) pageable.getPageSize() * pageable.getPageNumber());
+        query.limit(pageable.getPageSize());
+
+        List<Contact> contacts = mongoTemplate.find(query, Contact.class);
+        long count = mongoTemplate.count(query.skip(-1).limit(-1), Contact.class);
+
+        return new PageImpl<>(contacts, pageable, count);
     }
 
     @Override
     public List<SaleInfoAggregate> getBigSalesPerContact() {
-        return null;
+        ConditionalOperators.Cond bigSalesCount = ConditionalOperators
+                .when(new Criteria("sales.value")
+                        .gte(200000))
+                .then(1)
+                .otherwise(0);
+
+        AggregationOperation unwindSales = Aggregation.unwind("sales", true);
+        AggregationOperation fullName = Aggregation.project("_id", "sales").and("firstName").concat(" ", Aggregation.fields("lastName")).as("contactName");
+        AggregationOperation groupByName = Aggregation.group("contactName").sum(bigSalesCount).as("bigSales");
+        AggregationOperation project = Aggregation.project("bigSales").and("contactName").previousOperation();
+
+        Aggregation agg = Aggregation.newAggregation(unwindSales, fullName, groupByName, project);
+
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, SaleInfoAggregate.class).getMappedResults();
     }
 
     @Override
     public List<SaleInfoAggregate> findLobSalesByContact() {
-        return null;
+        AggregationOperation unwindSales = Aggregation.unwind("sales", true);
+        AggregationOperation fullName = Aggregation.project("_id", "sales").and("firstName").concat(" ", Aggregation.fields("lastName")).as("contactName");
+        AggregationOperation groupName = Aggregation.group("contactName").addToSet("sales.lineOfBusiness").as("lobs");
+        AggregationOperation project = Aggregation.project("lobs").and("contactName").previousOperation();
+
+        Aggregation agg = Aggregation.newAggregation(unwindSales, fullName, groupName, project);
+
+        return mongoTemplate.aggregate(agg, CONTACT_COLLECTION, SaleInfoAggregate.class).getMappedResults();
     }
 
     @Override
     public List<SaleInfoAggregate> findFirstSaleForEachContact() {
-        return null;
+        AggregationOperation matchBySales = Aggregation.match(Criteria.where("sales").exists(true));
+        AggregationOperation unwindSales = Aggregation.unwind("sales");
+        AggregationOperation sortBySalesDate = Aggregation.sort(Sort.Direction.ASC, "sales.date");
+        AggregationOperation fullName = Aggregation.project("_id", "sales").and("firstName").concat(" ", Aggregation.fields("lastName")).as("contactName");
+        AggregationOperation groupByName = Aggregation.group("contactName").first("sales").as("sale");
+        AggregationOperation project = Aggregation.project("sale").and("contactName").previousOperation();
+
+        Aggregation aggregation = Aggregation.newAggregation(matchBySales, unwindSales, sortBySalesDate, fullName, groupByName, project);
+
+        return mongoTemplate.aggregate(aggregation, CONTACT_COLLECTION, SaleInfoAggregate.class).getMappedResults();
     }
 
 }
